@@ -248,7 +248,21 @@ if [ $check_diff = yes ]; then
 	if [ "$allow_bad_whitespace" != "true" ]; then
 		test "$oldrev" = $zero \
 			&& exit 0
-		exec git diff --check $oldrev $newrev --
+		git diff --check $oldrev $newrev --
+		test $? != 0 && exit 1
+	fi
+
+	allow_missing_sob=$(git config --bool hooks.allowmissingsob)
+	if [ "$allow_missing_sob" != "true" ]; then
+		for rev in `git log --format=%h $oldrev..$newrev`
+		do
+			git show $rev | grep Signed-off-by >/dev/null 2>&1
+			if test $? != 0
+			then
+				echo "*** Update hook: missing Signed-off-by tag in $rev" >&2
+				exit 1
+			fi
+		done
 	fi
 fi
 
