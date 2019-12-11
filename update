@@ -248,7 +248,7 @@ if [ $check_diff = yes ]; then
 	if [ "$allow_bad_whitespace" != "true" ]; then
 		test "$oldrev" = $zero \
 			&& exit 0
-		git diff --check $oldrev $newrev --
+		git diff --check $oldrev $newrev -- ":(exclude)*.rst"
 		test $? != 0 && exit 1
 	fi
 
